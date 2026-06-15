@@ -9,7 +9,7 @@ const API_URL = 'http://localhost:3001';
 
 // Load from localStorage
 function loadData() {
-    const saved = localStorage.getItem('flashcard-decks');
+    const saved = localStorage.getItem('avie-flashcard-decks');
     if (saved) {
         decks = JSON.parse(saved);
     } else {
@@ -22,7 +22,7 @@ function loadData() {
 
 // Save to localStorage
 function saveData() {
-    localStorage.setItem('flashcard-decks', JSON.stringify(decks));
+    localStorage.setItem('avie-flashcard-decks', JSON.stringify(decks));
     renderDeckList();
 }
 
@@ -45,8 +45,13 @@ function renderDeckList() {
     `).join('');
 }
 
-// Upload file
+// Upload file - FIXED VERSION
 async function uploadFile(file) {
+    if (!file) {
+        alert('Please select a file first!');
+        return;
+    }
+    
     const formData = new FormData();
     formData.append('file', file);
     formData.append('count', document.getElementById('cardCount').value);
@@ -61,7 +66,7 @@ async function uploadFile(file) {
         
         const data = await response.json();
         
-        if (data.success && data.flashcards.length > 0) {
+        if (data.success && data.flashcards && data.flashcards.length > 0) {
             currentPreviewCards = data.flashcards;
             showPreview(currentPreviewCards);
         } else {
@@ -69,7 +74,7 @@ async function uploadFile(file) {
         }
     } catch (error) {
         console.error('Upload error:', error);
-        alert('Error connecting to server. Make sure the backend is running!');
+        alert('Error connecting to server. Make sure the backend is running!\n\nRun: node server.js');
     }
     
     showLoading(false);
@@ -96,7 +101,7 @@ async function generateFromText() {
         
         const data = await response.json();
         
-        if (data.success && data.flashcards.length > 0) {
+        if (data.success && data.flashcards && data.flashcards.length > 0) {
             currentPreviewCards = data.flashcards;
             showPreview(currentPreviewCards);
         } else {
@@ -104,7 +109,7 @@ async function generateFromText() {
         }
     } catch (error) {
         console.error('Generate error:', error);
-        alert('Error connecting to server. Make sure the backend is running!');
+        alert('Error connecting to server. Make sure the backend is running!\n\nRun: node server.js');
     }
     
     showLoading(false);
@@ -161,7 +166,6 @@ function saveAsDeck() {
     
     saveData();
     
-    // Reset UI
     currentPreviewCards = [];
     document.getElementById('uploadSection').style.display = 'block';
     document.getElementById('previewSection').style.display = 'none';
@@ -275,10 +279,7 @@ function prevCard() {
 }
 
 // Add/Edit card functions
-let editingCardIndex = null;
-
 function showAddCardModal() {
-    editingCardIndex = null;
     document.getElementById('cardModalTitle').innerText = 'Add New Card';
     document.getElementById('cardFront').value = '';
     document.getElementById('cardBack').value = '';
@@ -474,4 +475,125 @@ function showDashboard() {
         <div class="progress-container">
             <div class="progress-label">Mastery Progress</div>
             <div class="progress-bar">
-                <div class="
+                <div class="progress-fill" style="width: ${totalCards ? (mastered/totalCards)*100 : 0}%"></div>
+            </div>
+            <div class="progress-percent">${totalCards ? Math.round((mastered/totalCards)*100) : 0}% Complete</div>
+        </div>
+    `;
+    
+    document.getElementById('dashboardStats').innerHTML = html;
+    document.getElementById('dashboardModal').style.display = 'block';
+}
+
+// Theme functions
+function setTheme(theme) {
+    const themes = {
+        dark: 'linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%)',
+        light: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
+        purple: 'linear-gradient(135deg, #1a0f2e 0%, #2e1a4e 100%)',
+        green: 'linear-gradient(135deg, #0f2e1a 0%, #1a4e2e 100%)'
+    };
+    
+    document.body.style.background = themes[theme];
+    localStorage.setItem('avie-flashcard-theme', theme);
+    document.getElementById('themeSelector').style.display = 'none';
+}
+
+function loadTheme() {
+    const saved = localStorage.getItem('avie-flashcard-theme');
+    if (saved) setTheme(saved);
+}
+
+function showLoading(show) {
+    document.getElementById('loading').style.display = show ? 'flex' : 'none';
+}
+
+// Helper functions
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// File upload setup
+function setupFileUpload() {
+    const uploadBox = document.getElementById('uploadBox');
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    
+    uploadBtn.onclick = () => fileInput.click();
+    fileInput.onchange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            uploadFile(e.target.files[0]);
+        }
+    };
+    
+    uploadBox.ondragover = (e) => {
+        e.preventDefault();
+        uploadBox.style.borderColor = '#5865F2';
+    };
+    uploadBox.ondragleave = () => {
+        uploadBox.style.borderColor = 'rgba(255,255,255,0.2)';
+    };
+    uploadBox.ondrop = (e) => {
+        e.preventDefault();
+        uploadBox.style.borderColor = 'rgba(255,255,255,0.2)';
+        const file = e.dataTransfer.files[0];
+        if (file) uploadFile(file);
+    };
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    setupFileUpload();
+    
+    document.getElementById('generateBtn').onclick = generateFromText;
+    document.getElementById('saveDeckBtn').onclick = saveAsDeck;
+    document.getElementById('regenerateBtn').onclick = () => {
+        const text = document.getElementById('pasteText').value;
+        if (text) generateFromText();
+        else alert('Paste some text first or upload a file');
+    };
+    document.getElementById('cancelPreviewBtn').onclick = cancelPreview;
+    document.getElementById('createBlankDeckBtn').onclick = createBlankDeck;
+    document.getElementById('backToDecksBtn').onclick = backToDecks;
+    document.getElementById('flashcard').onclick = flipCard;
+    document.getElementById('prevBtn').onclick = prevCard;
+    document.getElementById('nextBtn').onclick = nextCard;
+    document.getElementById('addCardBtn').onclick = showAddCardModal;
+    document.getElementById('editDeckBtn').onclick = editDeck;
+    document.getElementById('deleteDeckBtn').onclick = deleteDeck;
+    document.getElementById('saveCardBtn').onclick = saveCard;
+    document.getElementById('exportBtn').onclick = exportToCSV;
+    document.getElementById('shareDeckBtn').onclick = shareDeck;
+    document.getElementById('copyLinkBtn').onclick = copyShareLink;
+    document.getElementById('dashboardBtn').onclick = showDashboard;
+    document.getElementById('themeBtn').onclick = () => {
+        const selector = document.getElementById('themeSelector');
+        selector.style.display = selector.style.display === 'none' ? 'flex' : 'none';
+    };
+    document.getElementById('easyBtn').onclick = () => recordCardDifficulty('easy');
+    document.getElementById('mediumBtn').onclick = () => recordCardDifficulty('medium');
+    document.getElementById('hardBtn').onclick = () => recordCardDifficulty('hard');
+    document.getElementById('voiceFrontBtn').onclick = () => startVoiceInput('front');
+    document.getElementById('voiceBackBtn').onclick = () => startVoiceInput('back');
+    
+    document.querySelectorAll('.close').forEach(btn => {
+        btn.onclick = () => {
+            document.getElementById('cardModal').style.display = 'none';
+            document.getElementById('shareModal').style.display = 'none';
+            document.getElementById('dashboardModal').style.display = 'none';
+        };
+    });
+    
+    window.onclick = (event) => {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    };
+    
+    window.openDeck = openDeck;
+    window.editPreviewCard = editPreviewCard;
+    window.setTheme = setTheme;
+});
