@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
@@ -6,15 +5,23 @@ const mammoth = require('mammoth');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static('.'));  // ← THIS serves your HTML file
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-// AI API endpoint (using Groq - free)
-const GROQ_API_KEY = process.env.GROQ_API_KEY;// Extract text from uploaded file
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+
+if (!GROQ_API_KEY) {
+    console.error('❌ ERROR: GROQ_API_KEY not found in .env file');
+    process.exit(1);
+}
 
 async function extractText(filePath, mimeType) {
     const fileBuffer = fs.readFileSync(filePath);
@@ -31,7 +38,6 @@ async function extractText(filePath, mimeType) {
     return '';
 }
 
-// Generate flashcards using AI
 async function generateFlashcards(text, count = 10) {
     const prompt = `You are a flashcard generator. Extract ${count} key terms and their definitions from the text below.
 
@@ -42,9 +48,7 @@ Return ONLY valid JSON array in this format:
 [
     {"front": "term or question", "back": "definition or answer"},
     {"front": "another term", "back": "its definition"}
-]
-
-Make each flashcard focused on one key concept.`;
+]`;
 
     try {
         const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
@@ -70,7 +74,6 @@ Make each flashcard focused on one key concept.`;
     }
 }
 
-// Upload and process file
 app.post('/api/upload', upload.single('file'), async (req, res) => {
     try {
         const file = req.file;
@@ -84,7 +87,6 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         
         const flashcards = await generateFlashcards(text, cardCount);
         
-        // Clean up uploaded file
         fs.unlinkSync(file.path);
         
         res.json({ success: true, flashcards });
@@ -94,11 +96,15 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     }
 });
 
-// Generate from text directly
 app.post('/api/generate', async (req, res) => {
     const { text, count } = req.body;
     const flashcards = await generateFlashcards(text, count);
     res.json({ success: true, flashcards });
 });
 
-app.listen(3001, () => console.log('✅ Flashcard AI server running on port 3001'));
+// This serves your index.html at the root URL
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(3001, () => console.log('✅ Avie\'s Flashcard Studio running at http://localhost:3001'));
