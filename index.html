@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🤖 AI Flashcard Studio | Smart Study Tool</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 AI Flashcard Studio</h1>
+            <p>Upload any document — AI creates flashcards instantly</p>
+        </header>
+
+        <!-- Upload Section -->
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-box" id="uploadBox">
+                <div class="upload-icon">📁</div>
+                <p>Drag & drop or click to upload</p>
+                <p class="upload-hint">PDF, Word, or Text files</p>
+                <input type="file" id="fileInput" accept=".pdf,.docx,.txt" style="display: none;">
+                <button id="uploadBtn" class="btn-primary">Choose File</button>
+            </div>
+            
+            <div class="paste-section">
+                <textarea id="pasteText" rows="5" placeholder="Or paste your notes/text here..."></textarea>
+                <button id="generateBtn" class="btn-primary">✨ Generate Flashcards</button>
+            </div>
+            
+            <div class="options">
+                <label>Number of flashcards:</label>
+                <input type="number" id="cardCount" min="5" max="30" value="10">
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>🤖 AI is reading your document and creating flashcards...</p>
+        </div>
+
+        <!-- Preview Section -->
+        <div id="previewSection" class="preview-section" style="display: none;">
+            <h2>📋 Generated Flashcards</h2>
+            <p>Review and edit before saving</p>
+            
+            <div id="flashcardPreview" class="flashcard-preview"></div>
+            
+            <div class="preview-actions">
+                <button id="saveDeckBtn" class="btn-primary">💾 Save as Deck</button>
+                <button id="regenerateBtn" class="btn-secondary">🔄 Regenerate</button>
+                <button id="cancelPreviewBtn" class="btn-secondary">✖️ Cancel</button>
+            </div>
+        </div>
+
+        <!-- Deck Section -->
+        <div id="deckSection" class="deck-section">
+            <div class="deck-header">
+                <h2>📚 Your Flashcard Decks</h2>
+                <div class="deck-actions">
+                    <button id="createBlankDeckBtn" class="btn-secondary">+ Blank Deck</button>
+                    <button id="dashboardBtn" class="btn-secondary">📊 Dashboard</button>
+                    <button id="themeBtn" class="btn-secondary">🎨 Theme</button>
+                </div>
+            </div>
+            <div id="deckList" class="deck-list"></div>
+        </div>
+
+        <!-- Theme Selector -->
+        <div class="theme-selector" id="themeSelector" style="display: none;">
+            <button onclick="setTheme('dark')">🌙 Dark</button>
+            <button onclick="setTheme('light')">☀️ Light</button>
+            <button onclick="setTheme('purple')">💜 Purple</button>
+            <button onclick="setTheme('green')">💚 Green</button>
+        </div>
+
+        <!-- Study View -->
+        <div id="studyView" class="study-view" style="display: none;">
+            <div class="study-header">
+                <button id="backToDecksBtn" class="btn-secondary">← Back to Decks</button>
+                <button id="shareDeckBtn" class="btn-secondary">🔗 Share</button>
+                <button id="exportBtn" class="btn-secondary">📤 Export CSV</button>
+            </div>
+            <h2 id="currentDeckTitle"></h2>
+            
+            <div class="flashcard-container">
+                <div class="flashcard" id="flashcard">
+                    <div class="flashcard-front" id="flashcardFront">
+                        <p>Click to flip</p>
+                    </div>
+                    <div class="flashcard-back" id="flashcardBack">
+                        <p>Click to flip</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="difficulty-buttons" id="difficultyButtons" style="display: none;">
+                <button id="easyBtn" class="difficulty easy">😊 Easy (4 days)</button>
+                <button id="mediumBtn" class="difficulty medium">😐 Medium (2 days)</button>
+                <button id="hardBtn" class="difficulty hard">😫 Hard (1 day)</button>
+            </div>
+
+            <div class="study-controls">
+                <button id="prevBtn" class="btn-secondary">◀ Previous</button>
+                <span id="cardCounter">Card 0 / 0</span>
+                <button id="nextBtn" class="btn-secondary">Next ▶</button>
+            </div>
+
+            <div class="action-buttons">
+                <button id="addCardBtn" class="btn-primary">+ Add Card</button>
+                <button id="editDeckBtn" class="btn-secondary">✏️ Edit Deck</button>
+                <button id="deleteDeckBtn" class="btn-danger">🗑️ Delete Deck</button>
+            </div>
+        </div>
+
+        <!-- Edit Card Modal -->
+        <div id="cardModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3 id="cardModalTitle">Add New Card</h3>
+                <div class="voice-buttons">
+                    <button id="voiceFrontBtn" class="btn-secondary">🎤 Speak Front</button>
+                    <button id="voiceBackBtn" class="btn-secondary">🎤 Speak Back</button>
+                </div>
+                <label>Front (Question/Term):</label>
+                <textarea id="cardFront" rows="3"></textarea>
+                <label>Back (Answer/Definition):</label>
+                <textarea id="cardBack" rows="3"></textarea>
+                <button id="saveCardBtn" class="btn-primary">Save Card</button>
+            </div>
+        </div>
+
+        <!-- Share Modal -->
+        <div id="shareModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>🔗 Share Deck</h3>
+                <p>Copy this link to share with classmates:</p>
+                <input type="text" id="shareLink" readonly>
+                <button id="copyLinkBtn" class="btn-primary">📋 Copy Link</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Modal -->
+        <div id="dashboardModal" class="modal">
+            <div class="modal-content dashboard-content">
+                <span class="close">&times;</span>
+                <h3>📊 Study Progress</h3>
+                <div id="dashboardStats"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

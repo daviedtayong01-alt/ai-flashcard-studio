@@ -1,0 +1,537 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+    color: white;
+    min-height: 100vh;
+    transition: background 0.3s ease;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #5865F2, #7289DA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #aaa;
+}
+
+/* Upload Section */
+.upload-section {
+    background: rgba(255,255,255,0.05);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.upload-box {
+    border: 2px dashed rgba(255,255,255,0.2);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.upload-box:hover {
+    border-color: #5865F2;
+    background: rgba(88,101,242,0.1);
+}
+
+.upload-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.upload-hint {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 10px;
+}
+
+.paste-section {
+    margin-top: 20px;
+}
+
+#pasteText {
+    width: 100%;
+    padding: 15px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+    resize: vertical;
+    margin-bottom: 15px;
+}
+
+.options {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#cardCount {
+    width: 80px;
+    padding: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: white;
+}
+
+/* Loading Spinner */
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(88,101,242,0.3);
+    border-top-color: #5865F2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Buttons */
+.btn-primary {
+    background: #5865F2;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #4752c4;
+    transform: scale(1.02);
+}
+
+.btn-secondary {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.btn-danger {
+    background: #e74c3c;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+/* Deck Section */
+.deck-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.deck-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.deck-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.deck-card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.deck-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,0.15);
+}
+
+.deck-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.deck-card p {
+    color: #aaa;
+    font-size: 0.8rem;
+}
+
+/* Study View */
+.study-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.flashcard-container {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+}
+
+.flashcard {
+    width: 500px;
+    height: 300px;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.flashcard-front, .flashcard-back {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.2rem;
+    transition: transform 0.6s;
+}
+
+.flashcard-front {
+    background: linear-gradient(135deg, #5865F2, #4752c4);
+    transform: rotateY(0deg);
+}
+
+.flashcard-back {
+    background: linear-gradient(135deg, #2ECC71, #27ae60);
+    transform: rotateY(180deg);
+}
+
+.flashcard.flipped .flashcard-front {
+    transform: rotateY(180deg);
+}
+
+.flashcard.flipped .flashcard-back {
+    transform: rotateY(0deg);
+}
+
+/* Difficulty Buttons */
+.difficulty-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.difficulty {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.difficulty.easy { background: #2ECC71; color: white; }
+.difficulty.medium { background: #F39C12; color: white; }
+.difficulty.hard { background: #E74C3C; color: white; }
+
+.difficulty:hover { transform: scale(1.05); }
+
+/* Study Controls */
+.study-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+#cardCounter {
+    color: #aaa;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+/* Preview Section */
+.preview-section {
+    background: rgba(255,255,255,0.05);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.flashcard-preview {
+    max-height: 500px;
+    overflow-y: auto;
+    margin: 20px 0;
+}
+
+.preview-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.preview-front {
+    color: #5865F2;
+    margin-bottom: 8px;
+}
+
+.preview-back {
+    color: #2ECC71;
+    font-size: 14px;
+}
+
+.edit-card-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    padding: 5px 12px;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+    background: #1a1a2e;
+    margin: 10% auto;
+    padding: 30px;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 16px;
+    position: relative;
+}
+
+.dashboard-content {
+    max-width: 600px;
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close:hover {
+    color: white;
+}
+
+.modal-content h3 {
+    margin-bottom: 20px;
+}
+
+.modal-content input, 
+.modal-content textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+}
+
+.modal-content textarea {
+    resize: vertical;
+}
+
+.voice-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+#shareLink {
+    margin-bottom: 15px;
+}
+
+/* Dashboard Stats */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat {
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.stat strong {
+    font-size: 24px;
+    color: #5865F2;
+    display: block;
+    margin-top: 5px;
+}
+
+.progress-container {
+    margin-top: 20px;
+}
+
+.progress-label {
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    background: #333;
+    border-radius: 10px;
+    height: 20px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background: #5865F2;
+    height: 100%;
+    width: 0%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.progress-percent {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 12px;
+    color: #aaa;
+}
+
+/* Theme Selector */
+.theme-selector {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.theme-selector button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .flashcard {
+        width: 90%;
+        height: 250px;
+    }
+    
+    .deck-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .deck-actions {
+        justify-content: center;
+    }
+    
+    header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .difficulty-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .difficulty {
+        width: 80%;
+    }
+}
